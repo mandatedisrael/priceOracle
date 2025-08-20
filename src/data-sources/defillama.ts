@@ -39,6 +39,7 @@ private readonly tokens: string[] = [
           symbol: c.symbol.toUpperCase(),
           price: c.price,
           timestamp: c.timestamp * 1000,
+          confidence: c.confidence,
           source: 'defillama',
         };
       });
