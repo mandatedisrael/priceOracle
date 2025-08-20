@@ -8,16 +8,15 @@ import { requestLogger, logInfo, logError } from './utils/logger';
 import { errorHandler } from './utils/errors';
 import priceRoutes from './api/routes/prices';
 
-// Validate configuration on startup
 validateConfig();
 
 const app = express();
 
-// Security middleware
+// security
 app.use(helmet());
 app.use(cors());
 
-// Rate limiting
+// 2 prevent rate limit
 const limiter = rateLimit({
   windowMs: config.api.rateLimitWindow,
   max: config.api.rateLimitMax,
@@ -30,14 +29,13 @@ const limiter = rateLimit({
 });
 app.use('/api/', limiter);
 
-// Body parsing middleware
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Request logging
+
 app.use(requestLogger);
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({
     success: true,
@@ -47,10 +45,10 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes
+
 app.use('/api/v1/prices', priceRoutes);
 
-// 404 handler
+
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
@@ -60,10 +58,10 @@ app.use('*', (req, res) => {
   });
 });
 
-// Global error handler
+
 app.use(errorHandler);
 
-// Start server
+
 const PORT = config.port;
 
 app.listen(PORT, () => {
@@ -74,7 +72,7 @@ app.listen(PORT, () => {
   });
 });
 
-// Graceful shutdown
+
 process.on('SIGTERM', () => {
   logInfo('SIGTERM received, shutting down gracefully');
   process.exit(0);
