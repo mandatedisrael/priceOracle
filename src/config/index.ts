@@ -28,12 +28,12 @@ export const config: AppConfig = {
 export const dataSourceConfig: DataSourceConfig = {
   coingecko: {
     name: 'CoinGecko',
-    baseUrl: 'https://api.coingecko.com/api/v3',
+    baseUrl: 'https://api.coingecko.com/api/v3/',
     apiKey: process.env.COINGECKO_API_KEY,
     rateLimit: 50,
     isActive: true,
   },
-  CoinMarketCap: {
+  coinMarketCap: {
     name: 'CoinMarketCap',
     baseUrl: 'https://pro-api.coinmarketcap.com/v1',
     apiKey: process.env.COINMARKETCAP_API_KEY,
@@ -42,11 +42,24 @@ export const dataSourceConfig: DataSourceConfig = {
   },
   binance: {
     name: 'Binance',
-    baseUrl: 'https://api.binance.com/api/v3',
-    apiKey: process.env.BINANCE_API_KEY,
+    baseUrl: 'https://api4.binance.com/api/v3/avgPrice',
+    apiKey: '', // PUBLIC API, key not required
     rateLimit: 1200,
     isActive: true,
   },
+  defillama: {
+    name: 'Defillama',
+    baseUrl: 'https://coins.llama.fi',
+    apiKey: '', // PUBLIC API, key not required
+    rateLimit: 1200,
+    isActive: true,
+  },
+  uniswap: {
+    name: 'UniswapV2',
+    baseUrl: process.env.UNISWAP_SUBGRAPH_URL || 'https://gateway.thegraph.com/api/' + (process.env.THE_GRAPH_API_KEY || 'YOUR_KEY') + '/subgraphs/id/UNISWAP_V2_SUBGRAPH_ID',
+    rateLimit: 1200,
+    isActive: true,
+  }
   //TODO - i will be adding more data sources here.... DEXEs Uniswap, Sushiswap, etc
 };
 
