@@ -60,7 +60,7 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Root endpoint - redirect to price symbols or show API info
+
 app.get('/', (req, res) => {
   res.json({
     success: true,
