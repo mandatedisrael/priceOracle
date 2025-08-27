@@ -4,6 +4,9 @@ import { asyncHandler } from '../../utils/errors';
 import { logInfo } from '../../utils/logger';
 import { ValidationError, NotFoundError } from '../../utils/errors';
 import { fetchAndAggregate } from '../../processors/price-aggregator';
+import BinanceDataSource from '../../data-sources/Binance';
+import BybitDataSource from '../../data-sources/bybit';
+import KrakenDataSource from '../../data-sources/kraken';
 
 const router = Router();
 
@@ -32,6 +35,99 @@ router.get('/:symbol', asyncHandler(async (req: Request, res: Response) => {
   });
 
   res.json(response);
+}));
+
+// Binance specific endpoint
+router.get('/binance/:symbol', asyncHandler(async (req: Request, res: Response) => {
+  const { symbol } = req.params;
+
+  if (!symbol || typeof symbol !== 'string') {
+    throw new ValidationError('Symbol is required and must be a string');
+  }
+
+  const normalizedSymbol = symbol.toUpperCase();
+  const binanceDataSource = new BinanceDataSource();
+  
+  try {
+    const priceData = await binanceDataSource.getPrice(normalizedSymbol);
+    
+    const response: PriceResponse = {
+      success: true,
+      data: priceData,
+      timestamp: Date.now(),
+    };
+
+    logInfo(`Binance price request for ${normalizedSymbol}`, { 
+      symbol: normalizedSymbol, 
+      source: 'binance' 
+    });
+
+    res.json(response);
+  } catch (error) {
+    throw new NotFoundError(`Price not available for ${normalizedSymbol} on Binance`);
+  }
+}));
+
+// Bybit specific endpoint
+router.get('/bybit/:symbol', asyncHandler(async (req: Request, res: Response) => {
+  const { symbol } = req.params;
+
+  if (!symbol || typeof symbol !== 'string') {
+    throw new ValidationError('Symbol is required and must be a string');
+  }
+
+  const normalizedSymbol = symbol.toUpperCase();
+  const bybitDataSource = new BybitDataSource();
+  
+  try {
+    const priceData = await bybitDataSource.getPrice(normalizedSymbol);
+    
+    const response: PriceResponse = {
+      success: true,
+      data: priceData,
+      timestamp: Date.now(),
+    };
+
+    logInfo(`Bybit price request for ${normalizedSymbol}`, { 
+      symbol: normalizedSymbol, 
+      source: 'bybit' 
+    });
+
+    res.json(response);
+  } catch (error) {
+    throw new NotFoundError(`Price not available for ${normalizedSymbol} on Bybit`);
+  }
+}));
+
+// Kraken specific endpoint
+router.get('/kraken/:symbol', asyncHandler(async (req: Request, res: Response) => {
+  const { symbol } = req.params;
+
+  if (!symbol || typeof symbol !== 'string') {
+    throw new ValidationError('Symbol is required and must be a string');
+  }
+
+  const normalizedSymbol = symbol.toUpperCase();
+  const krakenDataSource = new KrakenDataSource();
+  
+  try {
+    const priceData = await krakenDataSource.getPrice(normalizedSymbol);
+    
+    const response: PriceResponse = {
+      success: true,
+      data: priceData,
+      timestamp: Date.now(),
+    };
+
+    logInfo(`Kraken price request for ${normalizedSymbol}`, { 
+      symbol: normalizedSymbol, 
+      source: 'kraken' 
+    });
+
+    res.json(response);
+  } catch (error) {
+    throw new NotFoundError(`Price not available for ${normalizedSymbol} on Kraken`);
+  }
 }));
 
 //not yet implemented

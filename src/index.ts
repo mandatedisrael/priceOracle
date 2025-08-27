@@ -66,12 +66,12 @@ app.get('/', (req, res) => {
     success: true,
     message: 'Price Aggregator API',
     endpoints: {
-      symbols: 'Use /price/symbol to get price of a specific token',
+      symbols: 'All known tokens are available at /price',
       price: '/price/:symbol',
       history: '/price/:symbol/history (coming soon)',
       health: '/health',
       rateLimit: '/price/rate-limit/info',
-      Author: 'Built with ❤️ by notMartin (https://github.com/mandatedisrael)'
+      Author: 'Built with ❤️ by notMartin (https://x.com/damiclone)'
     },
     timestamp: Date.now(),
   });
