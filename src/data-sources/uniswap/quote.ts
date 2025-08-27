@@ -3,6 +3,8 @@ import { QUOTER_CONTRACT_ADDRESS, USDC_TOKEN, QUOTER_ABI, WETH_TOKEN, WBTC_TOKEN
 import dotenv from 'dotenv'
 dotenv.config()
 
+// STILL WORKING ON THIS
+
 
 const quoterContract = new ethers.Contract(
   QUOTER_CONTRACT_ADDRESS,

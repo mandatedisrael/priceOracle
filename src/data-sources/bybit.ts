@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { DataSource, PriceData } from '../types';
 import { dataSourceConfig } from '../config';
-import { logError, logInfo } from '../utils/logger';
+import { logError, logInfo, logPriceRequest } from '../utils/logger';
+import { DataSourceError } from '../utils/errors';
 
 export class BybitDataSource {
     private config: DataSource;
@@ -12,27 +13,27 @@ export class BybitDataSource {
         this.baseUrl = this.config.baseUrl;
     }
 
-    async getPrice(symbol: string){
+    async getPrice(symbol: string): Promise<PriceData> {
         if (symbol.includes('USDT') || symbol.includes('usdt')){
             symbol = symbol.toUpperCase();
     } else{
         symbol = symbol.toUpperCase()+"USDT";
     }
-    logInfo(`Fetching price for ${symbol} from Bybit`);
-    const response = await axios.get(`${this.baseUrl}v5/market/tickers?category=spot&symbol=${symbol}`);
-    const price = parseFloat(response.data.result.list[0].usdIndexPrice);
-    logInfo(`Price for ${symbol} from Bybit: ${price}`);
-    return {
+    try{
+        const response = await axios.get(`${this.baseUrl}v5/market/tickers?category=spot&symbol=${symbol}`);
+        const price = parseFloat(response.data.result.list[0].usdIndexPrice);
+        logPriceRequest(symbol, 'bybit', price);
+        return {
         symbol: symbol,
         price: price,
         timestamp: Date.now(),
         source: this.config.name,
+        }
+    } catch (error) {
+        logPriceRequest(symbol, 'bybit');
+        throw new DataSourceError(`Error fetching price for ${symbol} from Bybit`);
     }
 }
-
 }
 export default BybitDataSource;
 
-// TODO just for testing, should be removed
-const bybit = new BybitDataSource();
-bybit.getPrice('BTC').then(console.log);

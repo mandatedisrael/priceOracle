@@ -3,6 +3,7 @@ import { PriceData, ApiRequest, PriceResponse, HistoryResponse } from '../../typ
 import { asyncHandler } from '../../utils/errors';
 import { logInfo } from '../../utils/logger';
 import { ValidationError, NotFoundError } from '../../utils/errors';
+import { fetchAndAggregate } from '../../processors/price-aggregator';
 
 const router = Router();
 
@@ -16,20 +17,12 @@ router.get('/:symbol', asyncHandler(async (req: Request, res: Response) => {
   }
 
   const normalizedSymbol = symbol.toUpperCase();
-  
-  //TODO - Implement real data later, mock data for now
-  const mockPriceData: PriceData = {
-    symbol: normalizedSymbol,
-    price: 50000.00, 
-    timestamp: Date.now(),
-    source: source as string || 'mock',
-    volume24h: 1000000000,
-    marketCap: 1000000000000,
-  };
+
+  const aggregated = await fetchAndAggregate(normalizedSymbol);
 
   const response: PriceResponse = {
     success: true,
-    data: mockPriceData,
+    data: aggregated,
     timestamp: Date.now(),
   };
 
@@ -41,7 +34,7 @@ router.get('/:symbol', asyncHandler(async (req: Request, res: Response) => {
   res.json(response);
 }));
 
-// price history
+//not yet implemented
 router.get('/:symbol/history', asyncHandler(async (req: Request, res: Response) => {
   const { symbol } = req.params;
   const { limit = '10', interval = '1h' } = req.query;
@@ -141,6 +134,24 @@ router.post('/:symbol', asyncHandler(async (req: Request, res: Response) => {
   });
 
   res.status(201).json(response);
+}));
+
+// Rate limit info endpoint
+router.get('/rate-limit/info', asyncHandler(async (req: Request, res: Response) => {
+  
+  const remaining = req.headers['x-ratelimit-remaining'];
+  const reset = req.headers['x-ratelimit-reset'];
+  
+  res.json({
+    success: true,
+    data: {
+      remaining: remaining ? parseInt(remaining as string) : 5,
+      reset: reset ? parseInt(reset as string) : Date.now() + (24 * 60 * 60 * 1000),
+      limit: 5,
+      window: '24 hours'
+    },
+    timestamp: Date.now(),
+  });
 }));
 
 export default router;

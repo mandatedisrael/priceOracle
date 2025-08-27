@@ -16,10 +16,9 @@ const app = express();
 app.use(helmet());
 app.use(cors());
 
-// 2 prevent rate limit
-const limiter = rateLimit({
-  windowMs: config.api.rateLimitWindow,
-  max: config.api.rateLimitMax,
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, 
+  max: 100,
   message: {
     success: false,
     error: 'Too many requests, please try again later.',
@@ -27,7 +26,23 @@ const limiter = rateLimit({
     timestamp: Date.now(),
   },
 });
-app.use('/api/', limiter);
+
+// Strict rate limit for price endpoints: 5 requests per 24 hours
+const priceLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000, 
+  max: 5,
+  message: {
+    success: false,
+    error: 'Rate limit exceeded. Maximum 5 requests per 24 hours.',
+    statusCode: 429,
+    timestamp: Date.now(),
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', generalLimiter);
+app.use('/price', priceLimiter);
 
 
 app.use(express.json({ limit: '10mb' }));
@@ -46,7 +61,9 @@ app.get('/health', (req, res) => {
 });
 
 
-app.use('/api/v1/prices', priceRoutes);
+
+
+app.use('/price', priceRoutes);
 
 
 app.use('*', (req, res) => {

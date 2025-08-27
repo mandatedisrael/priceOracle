@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { DataSource, PriceData } from '../types';
 import { dataSourceConfig } from '../config';
-import { logError, logInfo } from '../utils/logger';
+import { logError, logPriceRequest } from '../utils/logger';
 import { DataSourceError } from '../utils/errors';
 
 export class KrakenDataSource{
@@ -19,22 +19,24 @@ export class KrakenDataSource{
     } else{
         symbol = symbol.toUpperCase()+"USD";
     }
-    logInfo(`Fetching price for ${symbol} from Kraken`);
-    const response = await axios.get(`${this.baseUrl}/public/Ticker?pair=${symbol}`);
-    const symbolKey = Object.keys(response.data.result)[0];
-    const price = parseFloat(response.data.result[symbolKey].c[0]);
-    logInfo(`Price for ${symbol} from Kraken: ${price}`);
-    return {
-        source: this.config.name,
-        symbol: symbol,
-        price: price,
-        timestamp: Date.now(),
-    };
+    
+    try{
+                const response = await axios.get(`${this.baseUrl}/public/Ticker?pair=${symbol}`);
+        const symbolKey = Object.keys(response.data.result)[0];
+        const price = parseFloat(response.data.result[symbolKey].c[0]);
+        logPriceRequest(symbol, 'kraken', price);
+        return {
+          source: this.config.name,
+          symbol: symbol,
+          price: price,
+          timestamp: Date.now(),
+        };
+    } catch (error) {
+        logPriceRequest(symbol, 'kraken');
+        throw new DataSourceError(`Error fetching price for ${symbol} from Kraken`);
+    }
     }
 }
 
 export default KrakenDataSource;
     
-// TODO just for testing, should be removed
-// const kraken = new KrakenDataSource();
-// kraken.getPrice('BTC').then(console.log);
