@@ -24,20 +24,22 @@ const logger = winston.createLogger({
         })
       ),
     }),
-    // File transport with rotation
-    new winston.transports.File({
-      filename: config.logging.file,
-      maxsize: 10485760, // 10MB
-      maxFiles: 3,
-      tailable: true,
-    }),
-    // Separate error log file
-    new winston.transports.File({
-      filename: 'logs/errors.log',
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 2,
-    }),
+    // File transport with rotation (only in development)
+    ...(config.nodeEnv === 'development' ? [
+      new winston.transports.File({
+        filename: config.logging.file,
+        maxsize: 10485760, // 10MB
+        maxFiles: 3,
+        tailable: true,
+      }),
+      // Separate error log file
+      new winston.transports.File({
+        filename: 'logs/errors.log',
+        level: 'error',
+        maxsize: 5242880, // 5MB
+        maxFiles: 2,
+      })
+    ] : []),
   ],
 });
 
