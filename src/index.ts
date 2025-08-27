@@ -60,8 +60,22 @@ app.get('/health', (req, res) => {
   });
 });
 
-
-
+// Root endpoint - redirect to price symbols or show API info
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Price Aggregator API',
+    endpoints: {
+      symbols: 'Use /price/symbol to get price of a specific token',
+      price: '/price/:symbol',
+      history: '/price/:symbol/history (coming soon)',
+      health: '/health',
+      rateLimit: '/price/rate-limit/info',
+      Author: 'Built with ❤️ by notMartin (https://github.com/mandatedisrael)'
+    },
+    timestamp: Date.now(),
+  });
+});
 
 app.use('/price', priceRoutes);
 
