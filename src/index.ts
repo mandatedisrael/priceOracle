@@ -64,9 +64,9 @@ app.get('/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'Price Aggregator API',
+    message: 'Go to https://github.com/mandatedisrael/price-aggregator for how to use this API',
     endpoints: {
-      symbols: 'All known tokens are available at /price',
+      symbols: 'All known tokens are available ',
       price: '/price/:symbol',
       history: '/price/:symbol/history (coming soon)',
       health: '/health',
