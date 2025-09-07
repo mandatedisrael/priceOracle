@@ -1,6 +1,6 @@
 # Price Aggregator
 
-A simple token price aggregator from multiple reliable sources
+A simple token price aggregator from multiple reliable sources!
 
 ## 🌐 Live Demo
 
